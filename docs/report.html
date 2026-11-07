@@ -65,24 +65,26 @@
 <p class="subtitle">Tenant-safe overrides, an append-only audit trail, and fit/gap reports you can defend</p>
 <div class="meta">
   <span>Case Study: Fullstack Product Engineer</span>
-  <span>Repository: <code>rakamindev/ai-interview-platform</code></span>
-  <span>Pull request: <code>#242</code></span>
+  <span>Repository: <code>muhnazih029/ai-interview-platform</code></span>
+  <span>Pull request: <code>#1</code></span>
   <span>Candidate: Muhammad Nazih</span>
 </div>
 
 <h2>1. Summary</h2>
 <p>
   The fit/gap report is the document a recruiter exports to justify a hiring decision. Today that
-  document cannot be defended: portfolio reads are not scoped to the requesting organization, and an
-  assessor can silently change a skill rating with no record of who did it or why. I hardened that
-  decision path across both services — tenant-safe portfolio access, a mandatory override rationale
-  with an append-only history, and fit/gap regeneration that never destroys the last good report.
+  document cannot be defended: portfolio reads were not scoped to the requesting organization, an
+  assessor could silently change a skill rating with no record of who did it or why, and regeneration
+  destroyed the last good report before a fresh result was computed. I hardened the decision path
+  across backend and frontend: tenant-safe portfolio access, a mandatory override rationale with an
+  append-only history, and fit/gap regeneration that never loses data.
 </p>
 <p>
-  The work is backend-heavy (data model, authorization, audit, background-job correctness) with a
-  focused frontend slice: an override dialog, visible provenance, and honest loading / empty /
-  pending / failed states. Every behavior is covered by request specs, and the seeded-fault
-  evidence in §7 shows the tests failing when the fix is removed.
+  The work landed in small, individually reviewable commits on branch <code>feat/assessor-decision-integrity</code>,
+  with a full RSpec harness and GitHub Actions CI running against Postgres, Redis, and the web build.
+  The frontend slice adds an override dialog, visible provenance, and honest loading / empty /
+  pending / failed states. Every behavior is covered by request specs; the final commits are green in
+  CI with local runs on the same pinned Ruby version.
 </p>
 
 <h2>2. Product context</h2>
@@ -100,15 +102,15 @@
 </ul>
 <h3>UU PDP implications</h3>
 <p>
-  Candidate transcripts, skill evidence, and ratings are personal data. This change keeps them
-  inside the tenant that created them, adds an immutable record of human edits, logs no personal
-  content, and uses fictional seed data for demonstration. No real candidate data is committed.
+  Candidate transcripts, skill evidence, and ratings are personal data. This change keeps them inside
+  the tenant that created them, adds an immutable record of human edits, logs no personal content, and
+  uses fictional seed data for demonstration. No real candidate data is committed.
 </p>
 
 <h2>3. Problem &amp; gap analysis</h2>
 <p>
-  Findings were produced by running the product end to end, inspecting API payloads, and reading
-  the database schema. Severity follows the brief: <span class="tag">P0</span> blocks or leaks,
+  Findings were produced by running the product end to end, inspecting API payloads, and reading the
+  database schema. Severity follows the brief: <span class="tag">P0</span> blocks or leaks,
   <span class="tag">P1</span> breaks the core workflow, <span class="tag">P2</span> degrades trust or
   onboarding, <span class="tag">P3</span> polish.
 </p>
@@ -187,7 +189,8 @@
   read evidence, accept the AI rating, run fit/gap, export. It never defines an override, a required
   rationale, an audit record, or per-tenant authorization for the portfolio. Those are gaps in the
   specification. Tenant isolation, stale cache, and data loss on regeneration are defects in code
-  that was specified and built.
+  that was specified and built. After the fix, override behavior now requires a reason (minimum 10
+  characters) and appends an immutable version row; the report contract and UI states reflect that.
 </div>
 
 <h2>4. Option evaluation</h2>
@@ -240,7 +243,7 @@ assessor_override_versions   -- new, append-only
   422 { errors: [...] }                    # reason required, min 10 chars
 
 GET  /api/v1/portfolios/:id/fitgap/:vacancy_id
-  200 { status: "ready" | "pending" | "missing", report: {...} | null }
+  200 { status: "ready" | "pending" | "missing", stale: bool, report: {...} | null }
 
 POST /api/v1/portfolios/:id/regenerate_fitgap
   202 { status: "pending" }                # never deletes the existing report</code></pre>
@@ -253,29 +256,55 @@ POST /api/v1/portfolios/:id/regenerate_fitgap
 
 <h2>6. Implementation</h2>
 <p>
-  Changes landed as small, individually reviewable commits. The pull request checklist tracks
-  progress; each item is checked only after its verification step passes.
+  Changes landed as small, individually reviewable commits on <code>feat/assessor-decision-integrity</code>:
 </p>
+<pre><code>a72284d chore: reproducible local dev stack
+1a27e78 docs: report scaffold
+3c551c3 test: add rspec harness and ci
+cb9a669 fix(security): scope portfolio access to the requesting tenant
+87d2247 ci: run api job on ubuntu-22.04 to keep ruby 3.3.2
+5eeee51 fix: align websocket middleware constants with zeitwerk
+bf8bc87 feat: require override reason and keep audit history
+092eaa3 fix(fitgap): regenerate without data loss and with idempotent enqueue
+adb6d84 feat(web): add override dialog and honest fit/gap states
+47baeb6 chore: add idempotent demo data for two-tenant evidence</code></pre>
 
 <h2>7. Verification</h2>
 <p>
-  Test matrix, seeded-fault evidence, and the AI verification moment are recorded here once the
-  suite runs. The seeded fault removes tenant scoping on a scratch branch so the tenant spec fails,
-  then reverts with history visible so it passes.
+  Final gate run locally with eager loading enabled (<code>CI=true</code>) and green on the latest CI run:
+</p>
+<pre><code># api (18 examples, 0 failures)
+docker compose exec -e CI=true -e RAILS_ENV=test api bundle exec rspec --format progress
+
+# web
+cd web && npm run build && cd ..</code></pre>
+<p>
+  Regression coverage added in this slice:
+</p>
+<ul>
+  <li><code>tenant_isolation_spec.rb</code> — cross-tenant portfolio access returns 404.</li>
+  <li><code>override_audit_spec.rb</code> — missing/short reason rejected; append-only versions; second override keeps prior versions.</li>
+  <li><code>fitgap_spec.rb</code> — regenerate keeps existing report until success; enqueue dedupes within TTL; stale worker result does not overwrite; GET returns ready/pending/missing.</li>
+</ul>
+<p>
+  Seeded fault evidence (red → green) and final screenshots are attached in <code>docs/screenshots/</code>;
+  final submission checklist lives in the pull request description.
 </p>
 
 <h2>8. User experience</h2>
 <p>
   Loading, empty, pending, failed, and partial states; a dialog that refuses to submit an empty
   rationale; provenance that stays legible at narrow widths; and a report page that no longer
-  implies certainty it does not have.
+  implies certainty it does not have. Polling uses backoff and does not re-trigger generation on
+  retries; the API never deletes a report before the new result is committed.
 </p>
 
 <h2>9. Trade-offs &amp; next steps</h2>
 <p>
   What was deliberately not done in this slice, what it would cost, and what I would do first with
   more time — including signature verification on the tenant resolver, a dedicated history endpoint,
-  and frontend unit tests.
+  and frontend unit tests. The signature-verification defect was closed during the tenant hardening
+  slice; remaining optional work is the dedicated override-history endpoint and web unit tests.
 </p>
 
 <h2>10. Reproduction</h2>
@@ -283,6 +312,20 @@ POST /api/v1/portfolios/:id/regenerate_fitgap
   Commands, environment, seeded data, and accounts needed to run the app and reproduce every claim
   in this report.
 </p>
+<pre><code># dev stack
+docker compose up -d
+
+# tests
+docker compose exec -e CI=true -e RAILS_ENV=test api bundle exec rspec --format progress
+
+# demo data (two tenants)
+docker compose exec api bundle exec rails runner db/demo.rb
+
+# cross-tenant check (Tenant A portfolio 44, Tenant B token -> expect 404)
+TOKEN_B=... # from demo output
+curl -s -o /dev/null -w '%{http_code}' -H "Authorization: Bearer $TOKEN_B" \
+  http://localhost:3001/api/v1/portfolios/44/fitgap/38
+</code>
 
 <div class="footer">
   Assessor Decision Integrity · Case Study: Fullstack Product Engineer · Muhammad Nazih
