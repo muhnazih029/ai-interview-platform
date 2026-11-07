@@ -21,6 +21,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import SkillCard from "@/components/assessment/SkillCard";
 import SkillPicker from "@/components/assessment/SkillPicker";
 import { ArrowLeft, Plus, Loader2 } from "lucide-react";
@@ -39,6 +46,8 @@ export default function AssessmentNewPage() {
   const navigate = useNavigate();
   const [submitting, setSubmitting] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
+  const [customOpen, setCustomOpen] = useState(false);
+  const [customLabel, setCustomLabel] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   const form = useForm<AssessmentFormValues>({
@@ -68,12 +77,16 @@ export default function AssessmentNewPage() {
   };
 
   const addCustomSkill = () => {
+    const label = customLabel.trim();
+    if (!label) return;
     append({
-      skill_label: "",
+      skill_label: label,
       is_custom: true,
       expected_level: 3,
       display_order: fields.length,
     });
+    setCustomLabel("");
+    setCustomOpen(false);
   };
 
   const addB7Skill = (skill: Partial<AssessmentSkill>) => {
@@ -223,7 +236,7 @@ export default function AssessmentNewPage() {
               type="button"
               variant="outline"
               size="sm"
-              onClick={addCustomSkill}
+              onClick={() => setCustomOpen(true)}
             >
               <Plus className="h-3.5 w-3.5 mr-1" />
               Add custom skill
@@ -258,6 +271,44 @@ export default function AssessmentNewPage() {
         onOpenChange={setPickerOpen}
         onSelect={addB7Skill}
       />
+
+      <Dialog
+        open={customOpen}
+        onOpenChange={(open) => {
+          setCustomOpen(open);
+          if (!open) setCustomLabel("");
+        }}
+      >
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Add custom skill</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-1.5">
+            <Label htmlFor="custom-skill-label">Skill name</Label>
+            <Input
+              id="custom-skill-label"
+              placeholder="e.g. Stakeholder communication"
+              value={customLabel}
+              onChange={(e) => setCustomLabel(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  addCustomSkill();
+                }
+              }}
+              autoFocus
+            />
+          </div>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => setCustomOpen(false)}>
+              Cancel
+            </Button>
+            <Button type="button" onClick={addCustomSkill} disabled={!customLabel.trim()}>
+              Add skill
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

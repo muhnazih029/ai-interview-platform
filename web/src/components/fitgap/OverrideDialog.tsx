@@ -45,8 +45,11 @@ export default function OverrideDialog({
     setError(null);
   }, [open, skill, existingOverride]);
 
+  const initialLevel = skill ? (existingOverride?.override_level ?? parseLevel(skill.ai_level)) : 3;
+  const initialNotes = existingOverride?.assessor_notes ?? "";
   const reasonLength = notes.trim().length;
-  const canSave = !!skill && reasonLength >= MIN_REASON_LENGTH && !saving;
+  const hasChanges = overrideLevel !== initialLevel || notes !== initialNotes;
+  const canSave = !!skill && hasChanges && reasonLength >= MIN_REASON_LENGTH && !saving;
 
   const handleSave = async () => {
     if (!skill || !canSave) return;
@@ -108,14 +111,18 @@ export default function OverrideDialog({
                 rows={4}
                 placeholder="Explain the evidence that supports this rating..."
               />
-              {reasonLength > 0 && reasonLength < MIN_REASON_LENGTH && (
-                <p className="text-xs text-muted-foreground">
-                  Add at least {MIN_REASON_LENGTH - reasonLength} more characters.
-                </p>
-              )}
+              <div className="min-h-4" aria-live="polite">
+                {reasonLength > 0 && reasonLength < MIN_REASON_LENGTH ? (
+                  <p className="text-xs text-muted-foreground">
+                    Add at least {MIN_REASON_LENGTH - reasonLength} more characters.
+                  </p>
+                ) : null}
+              </div>
             </div>
 
-            {error && <p className="text-sm text-destructive">{error}</p>}
+            <div className="min-h-5" aria-live="polite">
+              {error ? <p className="text-sm text-destructive">{error}</p> : null}
+            </div>
           </div>
         )}
 

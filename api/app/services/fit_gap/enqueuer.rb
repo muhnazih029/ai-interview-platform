@@ -28,7 +28,7 @@ module FitGap
     end
 
     def cache_key
-      "fitgap:enqueue:#{@portfolio.id}:#{@vacancy_id}"
+      "fitgap:enqueue:#{@portfolio.id}:#{@vacancy_id}:#{@portfolio.overrides_version.to_i}"
     end
   end
 end

@@ -180,14 +180,20 @@ export default function FitGapReportPage() {
   };
 
   const handleOverrideSaved = async (saved: AssessorOverride) => {
-    if (!portfolio) return;
+    if (!portfolio || !vacancyId) return;
     const existing = portfolio.overrides || [];
     const nextOverrides = existing.some((o) => o.portfolio_skill_id === saved.portfolio_skill_id)
       ? existing.map((o) => (o.portfolio_skill_id === saved.portfolio_skill_id ? saved : o))
       : [...existing, saved];
-    setPortfolio({ ...portfolio, overrides: nextOverrides });
+    const nextPortfolio = { ...portfolio, overrides: nextOverrides };
+    setPortfolio(nextPortfolio);
     missingTriggered.current = true;
-    await fetchReport({ ...portfolio, overrides: nextOverrides });
+    try {
+      await portfoliosApi.regenerateFitGap(portfolio.id, Number(vacancyId));
+    } catch {
+    }
+    setPollDelay(INITIAL_POLL_MS);
+    await fetchReport(nextPortfolio);
   };
 
   if (loading) {

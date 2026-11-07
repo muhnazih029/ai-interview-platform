@@ -6,6 +6,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { AlertTriangle, CheckCircle2, Pencil, Star } from "lucide-react";
 import { FIT_GAP_RESULT_CLASSES, FIT_GAP_RESULT_LABELS, LEVEL_LABELS, parseLevel } from "@/utils/constants";
 import { cn } from "@/lib/utils";
 import type { AssessorOverride, PortfolioSkill, SkillComparison } from "@/types";
@@ -21,21 +22,20 @@ function ResultBadge({ comparison }: { comparison: SkillComparison }) {
   const label = FIT_GAP_RESULT_LABELS[comparison.result];
   const classes = FIT_GAP_RESULT_CLASSES[comparison.result];
 
-  let icon = "";
   let suffix = "";
-  if (comparison.result === "match") icon = "✅";
-  else if (comparison.result === "exceed") {
-    icon = "⭐";
-    suffix = comparison.delta ? ` +${comparison.delta}` : "";
-  } else if (comparison.result === "gap") {
-    icon = "⚠";
-    suffix = comparison.delta ? ` -${Math.abs(comparison.delta)}` : "";
-  } else icon = "—";
+  if (comparison.result === "exceed") suffix = comparison.delta ? ` +${comparison.delta}` : "";
+  else if (comparison.result === "gap") suffix = comparison.delta ? ` -${Math.abs(comparison.delta)}` : "";
+
+  const icon =
+    comparison.result === "match" ? <CheckCircle2 className="h-3.5 w-3.5" aria-hidden /> :
+    comparison.result === "exceed" ? <Star className="h-3.5 w-3.5" aria-hidden /> :
+    comparison.result === "gap" ? <AlertTriangle className="h-3.5 w-3.5" aria-hidden /> :
+    <span aria-hidden>—</span>;
 
   return (
-    <span className={cn("inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded", classes)}>
-      {icon} {label}
-      {suffix}
+    <span className={cn("inline-flex items-center gap-1.5 text-xs font-medium px-2 py-0.5 rounded", classes)}>
+      {icon}
+      <span>{label}{suffix}</span>
     </span>
   );
 }
@@ -101,7 +101,7 @@ export default function ComparisonTable({
                       <div className="inline-flex flex-col items-center gap-1">
                         <span>
                           {LEVEL_LABELS[c.candidate_level] ?? `L${c.candidate_level}`}
-                          {isOverridden && <span className="text-xs text-muted-foreground ml-1">✏</span>}
+                          {isOverridden && <Pencil className="inline-block h-3 w-3 text-muted-foreground ml-1 align-[-1px]" aria-label="Overridden" />}
                         </span>
                         {isOverridden && skill && (
                           <span className="text-[11px] text-muted-foreground">
@@ -114,7 +114,7 @@ export default function ComparisonTable({
                           <TooltipProvider>
                             <Tooltip>
                               <TooltipTrigger asChild>
-                                <Badge variant="secondary" className="cursor-help font-normal">
+                                <Badge variant="secondary" className="cursor-default font-normal">
                                   Overridden
                                 </Badge>
                               </TooltipTrigger>
@@ -162,24 +162,30 @@ export default function ComparisonTable({
         </table>
       </div>
 
-      <div className="flex items-center gap-4 text-xs text-muted-foreground">
+      <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
         {matchCount > 0 && (
-          <span>
-            ✅ Match: {matchCount} skill{matchCount !== 1 ? "s" : ""}
+          <span className="inline-flex items-center gap-1.5">
+            <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" aria-hidden />
+            Match: {matchCount} skill{matchCount !== 1 ? "s" : ""}
           </span>
         )}
         {gapCount > 0 && (
-          <span>
-            ⚠ Gap: {gapCount} skill{gapCount !== 1 ? "s" : ""}
+          <span className="inline-flex items-center gap-1.5">
+            <AlertTriangle className="h-3.5 w-3.5 text-amber-600" aria-hidden />
+            Gap: {gapCount} skill{gapCount !== 1 ? "s" : ""}
           </span>
         )}
         {exceedCount > 0 && (
-          <span>
-            ⭐ Exceeds: {exceedCount} skill{exceedCount !== 1 ? "s" : ""}
+          <span className="inline-flex items-center gap-1.5">
+            <Star className="h-3.5 w-3.5 text-sky-600" aria-hidden />
+            Exceeds: {exceedCount} skill{exceedCount !== 1 ? "s" : ""}
           </span>
         )}
         {(comparisons.some((c) => c.is_override) || overrides.length > 0) && (
-          <span className="ml-auto">✏ = human override applied</span>
+          <span className="ml-auto inline-flex items-center gap-1.5">
+            <Pencil className="h-3.5 w-3.5" aria-hidden />
+            human override applied
+          </span>
         )}
       </div>
     </div>
