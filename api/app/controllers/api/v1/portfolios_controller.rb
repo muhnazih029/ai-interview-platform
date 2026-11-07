@@ -91,10 +91,9 @@ module Api
           return json_error("Portfolio is not ready (status: #{portfolio.generation_status})", :unprocessable_entity)
         end
 
-        FitGapReport.find_by(portfolio_id: portfolio.id, vacancy_id: vacancy.id)&.destroy
-        FitGapGeneratorWorker.perform_async(portfolio.id, vacancy.id)
+        FitGap::Enqueuer.call(portfolio: portfolio, vacancy_id: vacancy.id)
 
-        render json: { status: "generating", message: "Fit/gap report regeneration queued" }, status: :accepted
+        render json: { status: "pending", message: "Fit/gap report generation queued" }, status: :accepted
       rescue ActiveRecord::RecordNotFound
         json_error("Portfolio not found", :not_found)
       end
@@ -113,14 +112,20 @@ module Api
           return json_error("Portfolio is not ready (status: #{portfolio.generation_status})", :unprocessable_entity)
         end
 
-        # Return cached report if it exists and portfolio has no new overrides
-        existing = FitGapReport.find_by(portfolio_id: portfolio.id, vacancy_id: vacancy.id)
-        if existing
-          return json_response(report: fit_gap_json(existing))
+        report = FitGapReport.find_by(portfolio_id: portfolio.id, vacancy_id: vacancy.id)
+        stale = report.present? && fitgap_stale?(portfolio, report)
+
+        if report && !stale
+          return json_response(status: "ready", stale: false, report: fit_gap_json(report))
         end
 
-        FitGapGeneratorWorker.perform_async(portfolio.id, vacancy.id)
-        render json: { status: "generating", message: "Fit/gap report generation queued" }, status: :accepted
+        FitGap::Enqueuer.call(portfolio: portfolio, vacancy_id: vacancy.id)
+        render json: {
+          status: "pending",
+          stale: stale,
+          report: report ? fit_gap_json(report) : nil,
+          message: "Fit/gap report generation queued"
+        }, status: :accepted
       rescue ActiveRecord::RecordNotFound
         json_error("Portfolio not found", :not_found)
       end
@@ -128,13 +133,16 @@ module Api
       # GET /api/v1/portfolios/:id/fitgap/:vacancy_id
       def show_fitgap
         portfolio = Portfolio.find(params[:id])
-        report    = FitGapReport.find_by(portfolio_id: portfolio.id, vacancy_id: params[:vacancy_id])
+        vacancy_id = params[:vacancy_id]
+        report = FitGapReport.find_by(portfolio_id: portfolio.id, vacancy_id: vacancy_id)
 
         if report.nil?
-          return json_error("Fit/gap report not found", :not_found)
+          pending = fitgap_enqueue_pending?(portfolio.id, vacancy_id)
+          return json_response(status: pending ? "pending" : "missing", stale: false, report: nil)
         end
 
-        json_response(report: fit_gap_json(report))
+        stale = fitgap_stale?(portfolio, report)
+        json_response(status: "ready", stale: stale, report: fit_gap_json(report))
       rescue ActiveRecord::RecordNotFound
         json_error("Portfolio not found", :not_found)
       end
@@ -221,6 +229,14 @@ module Api
         end
 
         data
+      end
+
+      def fitgap_stale?(portfolio, report)
+        report.computed_overrides_version.to_i < portfolio.overrides_version.to_i
+      end
+
+      def fitgap_enqueue_pending?(portfolio_id, vacancy_id)
+        Rails.cache.exist?("fitgap:enqueue:#{portfolio_id}:#{vacancy_id}")
       end
     end
   end

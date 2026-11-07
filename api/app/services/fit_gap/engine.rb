@@ -4,9 +4,10 @@ module FitGap
   # N13: Generates a fit/gap report comparing a portfolio against a vacancy.
   # Uses rule-based comparison for skill levels + Gemini Flash for culture narrative.
   class Engine
-    def initialize(portfolio:, vacancy:, gemini_client: nil)
+    def initialize(portfolio:, vacancy:, gemini_client: nil, computed_overrides_version: nil)
       @portfolio = portfolio
       @vacancy   = vacancy
+      @computed_overrides_version = computed_overrides_version
       @gemini_client = gemini_client || Gemini::HttpClient.new(
         model:   ENV.fetch('GEMINI_FLASH_MODEL', 'gemini-2.0-flash-001'),
         timeout: 30
@@ -23,12 +24,14 @@ module FitGap
         vacancy_id:   @vacancy.id
       )
 
-      report.update!(
+      attrs = {
         skill_comparisons: skill_comparisons,
         culture_narrative: narratives[:culture],
         overall_narrative: narratives[:overall],
         generated_at:      Time.current
-      )
+      }
+      attrs[:computed_overrides_version] = @computed_overrides_version unless @computed_overrides_version.nil?
+      report.update!(attrs)
 
       Rails.logger.info("[N13] Fit/gap report generated: portfolio=#{@portfolio.id} vacancy=#{@vacancy.id}")
       report
