@@ -46,20 +46,6 @@ export default function FitGapReportPage() {
   const missingTriggered = useRef(false);
   const pollTimer = useRef<number | null>(null);
 
-  const loadPortfolio = useCallback(async () => {
-    if (!sessionId) return null;
-    const res = await sessionsApi.getPortfolio(Number(sessionId));
-    const data = res.data as any;
-    if (data?.portfolio) {
-      setPortfolio(data.portfolio);
-      return data.portfolio as Portfolio;
-    }
-    if (data?.status === "failed") {
-      setStatus("failed");
-    }
-    return null;
-  }, [sessionId]);
-
   const triggerGeneration = useCallback(
     async (targetPortfolio: Portfolio) => {
       if (!vacancyId) return;
@@ -100,25 +86,32 @@ export default function FitGapReportPage() {
       } catch (e: any) {
         if (e?.response?.status === 404) {
           setStatus("failed");
-        } else if (status !== "ready") {
-          setStatus("failed");
+        } else {
+          setStatus((prev) => (prev === "ready" ? prev : "failed"));
         }
       }
     },
-    [portfolio, vacancyId, triggerGeneration, status]
+    [portfolio, vacancyId, triggerGeneration]
   );
 
   useEffect(() => {
+    if (!sessionId) return;
     let active = true;
     (async () => {
       try {
-        const p = await loadPortfolio();
+        const res = await sessionsApi.getPortfolio(Number(sessionId));
+        const data = res.data as any;
         if (!active) return;
-        if (p) {
-          await fetchReport(p);
-        } else if (status === "loading") {
+        if (data?.portfolio) {
+          setPortfolio(data.portfolio);
+          await fetchReport(data.portfolio as Portfolio);
+        } else if (data?.status === "failed") {
+          setStatus("failed");
+        } else {
           setStatus("failed");
         }
+      } catch {
+        if (active) setStatus("failed");
       } finally {
         if (active) setLoading(false);
       }
@@ -126,7 +119,7 @@ export default function FitGapReportPage() {
     return () => {
       active = false;
     };
-  }, [loadPortfolio, fetchReport]);
+  }, [sessionId, vacancyId]);
 
   useEffect(() => {
     if (pollTimer.current) {
