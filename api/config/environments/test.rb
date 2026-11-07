@@ -39,6 +39,10 @@ Rails.application.configure do
   # Tell Active Support which deprecation messages to disallow.
   config.active_support.disallowed_deprecation_warnings = []
 
+  # Host Authorization blocks RSpec's default host (www.example.com) with a 403.
+  # nil disables the check in test so request specs are not coupled to host config.
+  config.hosts = nil
+
   # Raises error for missing translations.
   # config.i18n.raise_on_missing_translations = true
 
