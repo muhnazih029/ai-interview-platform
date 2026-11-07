@@ -155,8 +155,11 @@ cd web && npm ci && npm run build</code></pre>
 <p>Key specs: <code>spec/requests/tenant_isolation_spec.rb</code>, <code>spec/requests/override_audit_spec.rb</code>, <code>spec/requests/fitgap_spec.rb</code> (+ harness/health/auth specs). GitHub Actions CI runs the same classes of checks (API services + web build) and is green on the branch.</p>
 
 <h3>Seeded fault test</h3>
-<p>On a temporary <code>evidence/seeded-fault</code> branch (not merged), I intentionally bypass tenant scoping for portfolio lookups, ran <code>tenant_isolation_spec.rb</code> to observe a <strong>red</strong> failure, reverted the fault, and reran to confirm <strong>green</strong>. This demonstrates the regression test catches the targeted security failure.</p>
-<div class="placeholder">[ADD seeded-fault screenshots: terminal red → green, and <code>git log</code> on evidence branch if captured]</div>
+<p>On a temporary <code>evidence/seeded-fault</code> branch (not merged), I intentionally bypassed tenant scoping for portfolio lookups, ran <code>tenant_isolation_spec.rb</code> to observe a <strong>red</strong> failure, reverted the fault, and reran to confirm <strong>green</strong>. This demonstrates the regression test catches the targeted security failure.</p>
+<div class="grid2">
+  <figure><img src="screenshots/seeded-fault-red.png" alt="Seeded fault: spec failing (red)"><figcaption>Seeded fault: tenant isolation spec fails after bypassing scope (red).</figcaption></figure>
+  <figure><img src="screenshots/seeded-fault-green.png" alt="Seeded fault: spec passing (green)"><figcaption>After revert: same spec passes (green).</figcaption></figure>
+</div>
 
 <h3>AI verification notes (when AI output was wrong/risky and how I verified)</h3>
 <ul>
@@ -180,7 +183,7 @@ cd web && npm ci && npm run build</code></pre>
   <figure><img src="screenshots/ci-check.png" alt="CI check"><figcaption>CI check status (green).</figcaption></figure>
   <figure><img src="screenshots/action-github.png" alt="GitHub Actions"><figcaption>GitHub Actions run evidence.</figcaption></figure>
 </div>
-<div class="placeholder">[ADD seeded-fault red/green screenshots] [ADD responsive view / long-text or error-state screenshot if required] [ADD UI flow overview screenshot if desired]</div>
+<div class="placeholder">[ADD responsive view / long-text or error-state screenshot if required] [ADD UI flow overview screenshot if desired] [ADD VIDEO LINK in header/footer before final PDF]</div>
 
 <h2>10. Trade-offs, rigor, and Monozukuri notes</h2>
 <ul>
