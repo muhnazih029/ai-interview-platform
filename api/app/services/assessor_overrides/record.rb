@@ -56,6 +56,8 @@ module AssessorOverrides
           actor_role: @actor.role.to_s
         )
 
+        portfolio.increment!(:overrides_version)
+
         Result.new(override: override, history_count: version, created: created)
       end
     end
