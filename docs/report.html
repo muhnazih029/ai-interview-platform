@@ -4,331 +4,201 @@
 <meta charset="utf-8">
 <title>Assessor Decision Integrity — Case Study Report</title>
 <style>
-  @page { size: A4; margin: 17mm 15mm; }
+  @page { size: A4; margin: 16mm 14mm; }
   * { box-sizing: border-box; }
-  body {
-    font: 10.5pt/1.55 Georgia, "Times New Roman", serif;
-    color: #141414;
-    max-width: 740px;
-    margin: 0 auto;
-    padding: 28px 24px 64px;
-  }
-  h1 { font-size: 21pt; line-height: 1.2; margin: 0 0 6px; letter-spacing: -0.2px; }
-  h2 {
-    font-size: 13.5pt; margin: 30px 0 10px; padding-bottom: 5px;
-    border-bottom: 2px solid #141414; font-family: Helvetica, Arial, sans-serif;
-    letter-spacing: -0.1px;
-  }
-  h3 { font-size: 11.5pt; margin: 20px 0 6px; font-family: Helvetica, Arial, sans-serif; }
-  p { margin: 0 0 9px; }
+  body { font: 10.2pt/1.52 Georgia, "Times New Roman", serif; color: #141414; max-width: 760px; margin: 0 auto; padding: 24px 22px 56px; }
+  h1 { font-size: 20pt; line-height: 1.15; margin: 0 0 4px; }
+  h2 { font-size: 13pt; margin: 26px 0 8px; padding-bottom: 4px; border-bottom: 2px solid #141414; font-family: Helvetica, Arial, sans-serif; }
+  h3 { font-size: 11pt; margin: 16px 0 5px; font-family: Helvetica, Arial, sans-serif; }
+  p { margin: 0 0 8px; }
   ul, ol { margin: 0 0 10px; padding-left: 20px; }
-  li { margin-bottom: 4px; }
-  .subtitle { font-family: Helvetica, Arial, sans-serif; font-size: 11pt; color: #444; margin: 0 0 14px; }
-  .meta {
-    font-family: Helvetica, Arial, sans-serif; font-size: 8.5pt; color: #666;
-    border-top: 1px solid #ddd; border-bottom: 1px solid #ddd;
-    padding: 7px 0; margin-bottom: 22px;
-  }
-  .meta span { margin-right: 18px; }
-  table { border-collapse: collapse; width: 100%; font-size: 9pt; margin: 6px 0 14px; font-family: Helvetica, Arial, sans-serif; }
-  th, td { border: 1px solid #d5d5d5; padding: 5px 7px; text-align: left; vertical-align: top; }
-  th { background: #f2f2f2; font-weight: 600; }
-  code {
-    font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 8.8pt;
-    background: #f4f4f4; padding: 1px 4px; border-radius: 3px;
-  }
-  pre {
-    background: #f4f4f4; border: 1px solid #e2e2e2; border-radius: 6px;
-    padding: 10px 12px; overflow-x: auto; font-size: 8.6pt; line-height: 1.45;
-    font-family: ui-monospace, Menlo, Consolas, monospace;
-  }
+  li { margin-bottom: 3px; }
+  .subtitle { font-family: Helvetica, Arial, sans-serif; font-size: 10.5pt; color: #444; margin: 0 0 12px; }
+  .meta { font-family: Helvetica, Arial, sans-serif; font-size: 8.4pt; color: #555; border-top: 1px solid #ddd; border-bottom: 1px solid #ddd; padding: 7px 0; margin-bottom: 18px; }
+  .meta span { display: inline-block; margin-right: 14px; }
+  table { border-collapse: collapse; width: 100%; font-size: 8.8pt; margin: 6px 0 12px; font-family: Helvetica, Arial, sans-serif; }
+  th, td { border: 1px solid #d3d3d3; padding: 4px 6px; text-align: left; vertical-align: top; }
+  th { background: #f3f3f3; font-weight: 600; }
+  code { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 8.6pt; background: #f4f4f4; padding: 1px 4px; border-radius: 3px; }
+  pre { background: #f6f6f6; border: 1px solid #e1e1e1; border-radius: 6px; padding: 9px 11px; overflow-x: auto; font-size: 8.4pt; line-height: 1.4; font-family: ui-monospace, Menlo, Consolas, monospace; white-space: pre-wrap; }
   pre code { background: none; padding: 0; }
-  .sev { font-family: Helvetica, Arial, sans-serif; font-weight: 700; font-size: 8.5pt; padding: 1px 6px; border-radius: 3px; white-space: nowrap; }
-  .sev-p0 { background: #ffd6d6; color: #8a0000; }
+  .sev { font-family: Helvetica, Arial, sans-serif; font-weight: 700; font-size: 8.2pt; padding: 1px 6px; border-radius: 3px; white-space: nowrap; }
+  .sev-p0 { background: #ffd8d8; color: #8a0000; }
   .sev-p1 { background: #ffe8cc; color: #8a4b00; }
-  .sev-p2 { background: #fff6cc; color: #6d5800; }
-  .sev-p3 { background: #e8e8e8; color: #444; }
-  .tag { font-family: Helvetica, Arial, sans-serif; font-size: 8.2pt; color: #555; }
-  .callout {
-    border-left: 3px solid #141414; background: #f7f7f7;
-    padding: 9px 12px; margin: 12px 0; font-size: 9.5pt;
-  }
-  figure { margin: 12px 0 16px; }
+  .sev-p2 { background: #fff5c7; color: #6d5800; }
+  .sev-p3 { background: #ececec; color: #444; }
+  .callout { border-left: 3px solid #222; background: #f8f8f8; padding: 8px 11px; margin: 10px 0; font-size: 9.3pt; }
+  .placeholder { border: 1px dashed #c88; background: #fff8f8; color: #733; padding: 6px 8px; font-family: Helvetica, Arial, sans-serif; font-size: 8.6pt; margin: 8px 0; }
+  figure { margin: 10px 0 14px; break-inside: avoid; }
   figure img { max-width: 100%; border: 1px solid #ddd; border-radius: 4px; }
-  figcaption { font-family: Helvetica, Arial, sans-serif; font-size: 8.5pt; color: #666; margin-top: 4px; }
-  .footer { margin-top: 34px; padding-top: 10px; border-top: 1px solid #ddd; font-family: Helvetica, Arial, sans-serif; font-size: 8.5pt; color: #777; }
+  figcaption { font-family: Helvetica, Arial, sans-serif; font-size: 8.3pt; color: #666; margin-top: 3px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .footer { margin-top: 28px; padding-top: 8px; border-top: 1px solid #ddd; font-family: Helvetica, Arial, sans-serif; font-size: 8.3pt; color: #777; }
 </style>
 </head>
 <body>
 
 <h1>Assessor Decision Integrity</h1>
-<p class="subtitle">Tenant-safe overrides, an append-only audit trail, and fit/gap reports you can defend</p>
+<p class="subtitle">Tenant-safe portfolio access, accountable assessor overrides, and reliable fit/gap reporting</p>
 <div class="meta">
-  <span>Case Study: Fullstack Product Engineer</span>
-  <span>Repository: <code>muhnazih029/ai-interview-platform</code></span>
-  <span>Pull request: <code>#1</code></span>
-  <span>Candidate: Muhammad Nazih</span>
+  <span><strong>Case Study:</strong> Fullstack Product Engineer — Batch 3 2026</span>
+  <span><strong>Candidate:</strong> Muhammad Nazih</span>
+  <span><strong>Repository:</strong> <a href="https://github.com/muhnazih029/ai-interview-platform">muhnazih029/ai-interview-platform</a></span>
+  <span><strong>Pull Request:</strong> <a href="https://github.com/muhnazih029/ai-interview-platform/pull/1">PR #1 (open)</a></span>
+  <span><strong>Video (3–5 min):</strong> <span class="placeholder" style="display:inline; padding:1px 4px;">[ADD VIDEO LINK — Loom / YouTube Unlisted / Google Drive]</span></span>
 </div>
 
-<h2>1. Summary</h2>
-<p>
-  The fit/gap report is the document a recruiter exports to justify a hiring decision. Today that
-  document cannot be defended: portfolio reads were not scoped to the requesting organization, an
-  assessor could silently change a skill rating with no record of who did it or why, and regeneration
-  destroyed the last good report before a fresh result was computed. I hardened the decision path
-  across backend and frontend: tenant-safe portfolio access, a mandatory override rationale with an
-  append-only history, and fit/gap regeneration that never loses data.
-</p>
-<p>
-  The work landed in small, individually reviewable commits on branch <code>feat/assessor-decision-integrity</code>,
-  with a full RSpec harness and GitHub Actions CI running against Postgres, Redis, and the web build.
-  The frontend slice adds an override dialog, visible provenance, and honest loading / empty /
-  pending / failed states. Every behavior is covered by request specs; the final commits are green in
-  CI with local runs on the same pinned Ruby version.
-</p>
+<h2>1. Engineering depth statement</h2>
+<p>This submission is <strong>backend-heavy with a targeted frontend slice</strong>. The highest-risk issues were in data isolation, decision accountability, and background regeneration (Rails API, PostgreSQL, Sidekiq, request specs, CI). I also delivered the frontend changes required to make those fixes usable and trustworthy: an override dialog with validation, provenance in the comparison view, and honest fit/gap states.</p>
 
-<h2>2. Product context</h2>
-<h3>Who uses it</h3>
+<h2>2. Execution narrative (step by step)</h2>
+<ol>
+  <li><strong>Discovery.</strong> Ran the product locally with Docker Compose, verified health/login, inspected the database schema and key API payloads, and reviewed PRD 02 (notably Phase 5 fit/gap and assessor review).</li>
+  <li><strong>Context analysis.</strong> Mapped who uses the fit/gap report (assessors, recruiters/hiring managers, candidates), what must stay true, and UU PDP implications for candidate data.</li>
+  <li><strong>Planning &amp; architecture.</strong> Prioritized P0/P1 issues on the assessor decision path, distinguished <em>missing specification</em> from <em>defects</em>, and evaluated options (tenant scoping, audit storage, report freshness) with trade-offs. Chose an MVS-first scope to deliver verified changes within the time limit.</li>
+  <li><strong>Coding (small, reviewable commits).</strong> Reproducible dev stack + RSpec/CI; tenant-scoped portfolio access and JWT signature verification; mandatory override reason with append-only version history; fit/gap regeneration without deleting the previous report and with idempotent enqueueing; fit/gap UI states, provenance, and override dialog.</li>
+  <li><strong>Verification.</strong> Request specs for tenant isolation, override audit, and fit/gap behavior; local runs with <code>CI=true</code> (eager loading) and GitHub Actions green; seeded-fault reproduction (red → green) on a scratch branch; manual/UI and API evidence screenshots.</li>
+</ol>
+
+<h2>3. Product context, users, and UU PDP</h2>
+<h3>Users and impact</h3>
 <ul>
-  <li><strong>Assessors</strong> — review transcript evidence and skill ratings, then decide whether a candidate fits a vacancy.</li>
-  <li><strong>Recruiters and hiring managers</strong> — export the fit/gap report and act on it.</li>
-  <li><strong>Candidates</strong> — the people being measured. They do not choose this product, cannot opt out, and a wrong rating changes a real person's year.</li>
+  <li><strong>Assessors</strong> review evidence and may correct AI ratings before a hiring decision is made.</li>
+  <li><strong>Recruiters / hiring managers</strong> consume and export the fit/gap report to justify decisions.</li>
+  <li><strong>Candidates</strong> are the subjects of the assessment. They do not control the system; incorrect or unaccountable ratings can materially affect them.</li>
 </ul>
 <h3>What must stay true</h3>
 <ul>
-  <li>One organization's data is never visible to another organization.</li>
-  <li>Every human correction of an AI rating is attributable, reasoned, and permanent.</li>
-  <li>The exported report reflects the latest decision state, and a failed background job never makes it unavailable.</li>
+  <li>One organization’s candidate data is never readable or mutable by another organization.</li>
+  <li>Every human correction of an AI rating is attributable, reasoned, and retained.</li>
+  <li>The exportable report reflects the latest valid decision state; a failed background job must not make prior results disappear.</li>
 </ul>
 <h3>UU PDP implications</h3>
-<p>
-  Candidate transcripts, skill evidence, and ratings are personal data. This change keeps them inside
-  the tenant that created them, adds an immutable record of human edits, logs no personal content, and
-  uses fictional seed data for demonstration. No real candidate data is committed.
-</p>
+<p>Interview evidence, skill ratings, override reasons, and fit/gap outputs are personal/candidate-related data. The implementation keeps access tenant-scoped, records human edits in an append-only audit trail, avoids committing secrets or real candidate data, and uses fixture-based demo data. Logs and commits must not contain PII or credentials.</p>
 
-<h2>3. Problem &amp; gap analysis</h2>
-<p>
-  Findings were produced by running the product end to end, inspecting API payloads, and reading the
-  database schema. Severity follows the brief: <span class="tag">P0</span> blocks or leaks,
-  <span class="tag">P1</span> breaks the core workflow, <span class="tag">P2</span> degrades trust or
-  onboarding, <span class="tag">P3</span> polish.
-</p>
+<h2>4. Prioritized gap analysis</h2>
+<p>Findings came from end-to-end runs, API inspection, and schema/code review. Severity: <span class="sev sev-p0">P0</span> blocker/leak, <span class="sev sev-p1">P1</span> core workflow broken, <span class="sev sev-p2">P2</span> trust/onboarding, <span class="sev sev-p3">P3</span> polish.</p>
 <table>
-  <thead>
-    <tr><th style="width:7%">Sev</th><th style="width:26%">Finding</th><th style="width:30%">Impact</th><th style="width:20%">Classification</th><th style="width:17%">Evidence</th></tr>
-  </thead>
+  <thead><tr><th>Sev</th><th>Finding</th><th>Impact (1 sentence)</th><th>Classification</th><th>Reproduction / evidence</th></tr></thead>
   <tbody>
-    <tr>
-      <td><span class="sev sev-p0">P0</span></td>
-      <td>Portfolio family has no <code>tenant_id</code>; lookups use unscoped <code>Portfolio.find</code></td>
-      <td>Another tenant can read, export, and override a candidate's portfolio by ID</td>
-      <td>Defect — the feature exists and is broken</td>
-      <td><code>portfolios_controller.rb:82,104,130</code></td>
-    </tr>
-    <tr>
-      <td><span class="sev sev-p0">P0</span></td>
-      <td>Tenant resolved from JWT without signature verification</td>
-      <td>A forged <code>scheme</code> claim selects any organization</td>
-      <td>Defect</td>
-      <td><code>tenant_resolver_middleware.rb:47</code></td>
-    </tr>
-    <tr>
-      <td><span class="sev sev-p1">P1</span></td>
-      <td>Override reason optional; only the latest row is kept</td>
-      <td>No audit trail: who changed what, when, and why is lost</td>
-      <td>Missing specification — PRD Phase 5 never defines override</td>
-      <td><code>assessor_overrides</code> unique index</td>
-    </tr>
-    <tr>
-      <td><span class="sev sev-p1">P1</span></td>
-      <td>Report destroyed before regeneration is enqueued</td>
-      <td>A Sidekiq outage permanently loses the exportable artifact</td>
-      <td>Defect</td>
-      <td><code>portfolios_controller.rb:94</code></td>
-    </tr>
-    <tr>
-      <td><span class="sev sev-p1">P1</span></td>
-      <td>Fit/gap cache not invalidated after an override</td>
-      <td>Report shown to a recruiter reflects stale ratings</td>
-      <td>Defect</td>
-      <td><code>portfolios_controller.rb:116-120</code></td>
-    </tr>
-    <tr>
-      <td><span class="sev sev-p1">P1</span></td>
-      <td>Frontend polls every 5s and re-triggers generation on each 404</td>
-      <td>Duplicate jobs pile up during a slow generation</td>
-      <td>Defect</td>
-      <td><code>FitGapReportPage.tsx:35-41</code></td>
-    </tr>
-    <tr>
-      <td><span class="sev sev-p2">P2</span></td>
-      <td>Login page collapses every failure into "Invalid email or password"</td>
-      <td>Network and server errors are misread as bad credentials</td>
-      <td>Defect</td>
-      <td><code>LoginPage.tsx:29-31</code></td>
-    </tr>
-    <tr>
-      <td><span class="sev sev-p3">P3</span></td>
-      <td>Onboarding docs point at port 3000; API serves 3001</td>
-      <td>First-run setup fails before the app is reachable</td>
-      <td>Defect</td>
-      <td><code>web/.env.example</code></td>
-    </tr>
-    <tr>
-      <td><span class="sev sev-p3">P3</span></td>
-      <td><code>api/bin/rails</code> stored as mode <code>100644</code></td>
-      <td>Fresh clones on Linux fail with <code>permission denied</code></td>
-      <td>Defect</td>
-      <td><code>git ls-files -s api/bin/rails</code></td>
-    </tr>
-  </tbody>
-</table>
-<div class="callout">
-  <strong>Missing specification vs. defect.</strong> PRD 02 Phase 5 defines the review flow as:
-  read evidence, accept the AI rating, run fit/gap, export. It never defines an override, a required
-  rationale, an audit record, or per-tenant authorization for the portfolio. Those are gaps in the
-  specification. Tenant isolation, stale cache, and data loss on regeneration are defects in code
-  that was specified and built. After the fix, override behavior now requires a reason (minimum 10
-  characters) and appends an immutable version row; the report contract and UI states reflect that.
-</div>
-
-<h2>4. Option evaluation</h2>
-<p>Two decisions drove the design. Each was evaluated against cost, benefit, maintenance, failure modes, and fit for this codebase.</p>
-<table>
-  <thead>
-    <tr><th style="width:16%">Decision</th><th style="width:21%">Option A</th><th style="width:21%">Option B</th><th style="width:21%">Option C</th><th style="width:21%">Chosen</th></tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Tenant scoping</td>
-      <td>Add <code>portfolios.tenant_id</code> + existing <code>TenantScoped</code></td>
-      <td>Join-only predicate at each call site</td>
-      <td>Postgres row-level security</td>
-      <td><strong>A</strong> — consistent with <code>assessments</code>/<code>sessions</code>, safe by default, no infra change</td>
-    </tr>
-    <tr>
-      <td>Audit storage</td>
-      <td>Separate append-only table</td>
-      <td>Overwrite <code>assessor_overrides</code> with history columns</td>
-      <td>Generic event-sourcing log</td>
-      <td><strong>A</strong> — decision record must be reconstructable; current value stays fast to read</td>
-    </tr>
-    <tr>
-      <td>Report freshness</td>
-      <td>Version counter gated on override</td>
-      <td>Delete cached report on override</td>
-      <td>Timestamp comparison</td>
-      <td><strong>A</strong> — timestamps are unreliable; version is explicit and testable</td>
-    </tr>
+    <tr><td><span class="sev sev-p0">P0</span></td><td>Portfolio/fit-gap access not consistently scoped to the requesting organization; portfolio ownership not enforced by tenant on lookups.</td><td>Another organization can read or act on candidate decision data by ID.</td><td>Defect</td><td>API: token for org B requests org A portfolio/fit-gap → unauthorized access before fix. Evidence: <code>portfolios_controller.rb</code> lookups, schema missing tenant ownership on portfolio path; fixed by <code>cb9a669</code>, spec <code>tenant_isolation_spec.rb</code>.</td></tr>
+    <tr><td><span class="sev sev-p0">P0</span></td><td>Tenant context resolved from JWT claims without signature verification.</td><td>A forged claim could influence tenant resolution.</td><td>Defect</td><td><code>TenantResolverMiddleware</code> claim handling; fixed to verify signature in <code>cb9a669</code>.</td></tr>
+    <tr><td><span class="sev sev-p1">P1</span></td><td>Override reason optional; only latest override retained.</td><td>Human corrections cannot be explained or reconstructed later.</td><td>Missing specification (PRD Phase 5 does not define override rationale/audit)</td><td><code>assessor_overrides</code> allows optional notes/latest state; fixed by <code>bf8bc87</code> (min 10 chars, <code>assessor_override_versions</code> append-only).</td></tr>
+    <tr><td><span class="sev sev-p1">P1</span></td><td>Fit/gap regeneration deletes the existing report before a new job completes.</td><td>A failed/slow job can leave no exportable report.</td><td>Defect</td><td>Regenerate path destroys report then enqueues; fixed by <code>092eaa3</code> (in-place update, keep prior report).</td></tr>
+    <tr><td><span class="sev sev-p1">P1</span></td><td>Duplicate regeneration/enqueue and stale report handling are unsafe.</td><td>Repeated triggers create unnecessary work and stale results can mislead.</td><td>Defect</td><td>Polling/trigger behavior and lack of version gating; fixed by <code>092eaa3</code> (cache guard, <code>computed_overrides_version</code>/<code>overrides_version</code>, stale discard) and <code>adb6d84</code> (no poll-triggered POST storm).</td></tr>
+    <tr><td><span class="sev sev-p1">P1</span></td><td>Fit/gap UI lacks honest state handling and override provenance.</td><td>Assessors cannot reliably see whether a report is ready/pending/stale or why a rating changed.</td><td>Missing specification / UX defect</td><td><code>FitGapReportPage</code>/<code>ComparisonTable</code> before fix; addressed in <code>adb6d84</code>.</td></tr>
+    <tr><td><span class="sev sev-p2">P2</span></td><td>Login error could disappear due to global 401/403 redirect on auth attempts.</td><td>Users misread failed login feedback as a refresh/glitch.</td><td>Defect</td><td><code>web/src/services/api.ts</code> interceptor redirected on login 401; fixed by <code>005cf62</code>.</td></tr>
+    <tr><td><span class="sev sev-p3">P3</span></td><td>Local onboarding details (ports/bin mode/env) caused setup friction.</td><td>First-run and CI reproducibility suffered until corrected.</td><td>Defect</td><td>Addressed in dev stack/CI commits (<code>a72284d</code>, <code>87d2247</code>, <code>5eeee51</code>).</td></tr>
   </tbody>
 </table>
 
-<h2>5. Solution design</h2>
+<h3>Constraint signals</h3>
+<ul>
+  <li><strong>Ambiguity:</strong> PRD 02 Phase 5 does not specify assessor override rationale/audit; treated as a specification gap and implemented with accountable defaults (required reason, append-only history).</li>
+  <li><strong>Architectural/runtime debt:</strong> tenant resolution and background jobs require explicit tenant/ownership handling; eager loading in CI exposed a pre-existing Zeitwerk naming issue (fixed).</li>
+  <li><strong>Operational constraint:</strong> no Gemini-dependent flow used for evidence; fixture-based demo data ensures reproducible verification.</li>
+</ul>
+
+<h2>5. Option evaluation and trade-offs (2–3 options)</h2>
+<table>
+  <thead><tr><th>Decision</th><th>Option A</th><th>Option B</th><th>Option C</th><th>Chosen &amp; why</th></tr></thead>
+  <tbody>
+    <tr><td>Tenant scoping</td><td>Add <code>tenant_id</code>/ownership + scoped lookups (reuse existing tenant patterns).</td><td>Join/predicate checks only at selected call sites.</td><td>Database row-level security (RLS).</td><td><strong>A.</strong> Lower risk in this codebase, explicit and testable, no infra migration; B is easy to miss on new paths; C is stronger but higher change/risk for the timebox.</td></tr>
+    <tr><td>Audit storage</td><td>Append-only version table + current row.</td><td>Overwrite a single override row (optionally add fields).</td><td>Generic event-sourcing/log infrastructure.</td><td><strong>A.</strong> Reconstructable decisions with simple reads; B loses history; C is over-engineered for this slice. Maintenance: append-only rows need retention policy later (noted).</td></tr>
+    <tr><td>Report freshness</td><td>Version counters + in-place update + stale discard/guard.</td><td>Delete cache/report on every override/regenerate.</td><td>Timestamp-only freshness checks.</td><td><strong>A.</strong> Preserves last good report and is deterministic; B causes data-loss windows; C is fragile under clock/job timing. Failure mode: duplicate jobs still possible at race boundaries, but final correctness protected by versioning.</td></tr>
+  </tbody>
+</table>
+
+<h2>6. Solution design (implemented)</h2>
 <h3>Data model</h3>
 <pre><code>portfolios
-  + tenant_id                bigint  not null  (backfilled from sessions.tenant_id)
-  + overrides_version        integer not null default 0
+  + tenant_id (backfilled from session ownership)
+  + overrides_version integer not null default 0
 
 fit_gap_reports
   + computed_overrides_version integer not null default 0
 
-assessor_override_versions   -- new, append-only
+assessor_override_versions (append-only)
   portfolio_skill_id, tenant_id, version, ai_level, override_level,
   reason, actor_id, actor_role, created_at
   unique (portfolio_skill_id, version)</code></pre>
-<h3>API contract</h3>
+<h3>Key API behavior</h3>
 <pre><code>POST /api/v1/portfolio_skills/:id/override
-  201 { override: {...}, history_count: n }
-  422 { errors: [...] }                    # reason required, min 10 chars
+  body: { override: { override_level, assessor_notes } }  (reason required, min 10 chars)
+  201/200: { override, history_count }   |   422 on validation
 
 GET  /api/v1/portfolios/:id/fitgap/:vacancy_id
-  200 { status: "ready" | "pending" | "missing", stale: bool, report: {...} | null }
+  200: { status: "ready"|"pending"|"missing", stale: boolean, report: {...}|null }
 
 POST /api/v1/portfolios/:id/regenerate_fitgap
-  202 { status: "pending" }                # never deletes the existing report</code></pre>
-<h3>Frontend</h3>
-<p>
-  The report page drives an explicit state machine instead of inferring state from HTTP 404s.
-  The comparison table shows the AI rating beside the assessor rating, marks overridden rows, and
-  exposes who overrode it, when, and why. Polling backs off and stops; it never re-triggers work.
-</p>
+  202: { status: "pending" }  (does not delete the previous report)</code></pre>
+<h3>UX</h3>
+<p>Override dialog enforces a reason and shows validation/422 feedback. The comparison view exposes provenance (AI vs assessor, overridden indicator, reason/who/when). The fit/gap page uses explicit states (loading/missing/pending/ready/failed), keeps prior report visible when stale, and polls with backoff without re-triggering generation on every poll.</p>
 
-<h2>6. Implementation</h2>
-<p>
-  Changes landed as small, individually reviewable commits on <code>feat/assessor-decision-integrity</code>:
-</p>
-<pre><code>a72284d chore: reproducible local dev stack
-1a27e78 docs: report scaffold
-3c551c3 test: add rspec harness and ci
-cb9a669 fix(security): scope portfolio access to the requesting tenant
-87d2247 ci: run api job on ubuntu-22.04 to keep ruby 3.3.2
-5eeee51 fix: align websocket middleware constants with zeitwerk
-bf8bc87 feat: require override reason and keep audit history
-092eaa3 fix(fitgap): regenerate without data loss and with idempotent enqueue
-adb6d84 feat(web): add override dialog and honest fit/gap states
-47baeb6 chore: add idempotent demo data for two-tenant evidence</code></pre>
-
-<h2>7. Verification</h2>
-<p>
-  Final gate run locally with eager loading enabled (<code>CI=true</code>) and green on the latest CI run:
-</p>
-<pre><code># api (18 examples, 0 failures)
-docker compose exec -e CI=true -e RAILS_ENV=test api bundle exec rspec --format progress
-
-# web
-cd web && npm run build && cd ..</code></pre>
-<p>
-  Regression coverage added in this slice:
-</p>
+<h2>7. Self-derived acceptance criteria and edge cases</h2>
 <ul>
-  <li><code>tenant_isolation_spec.rb</code> — cross-tenant portfolio access returns 404.</li>
-  <li><code>override_audit_spec.rb</code> — missing/short reason rejected; append-only versions; second override keeps prior versions.</li>
-  <li><code>fitgap_spec.rb</code> — regenerate keeps existing report until success; enqueue dedupes within TTL; stale worker result does not overwrite; GET returns ready/pending/missing.</li>
+  <li><strong>AC1 (isolation):</strong> A valid user from organization B cannot read, export, or override organization A’s portfolio/fit-gap data; response is not-found/denied without leaking existence details beyond safe behavior.</li>
+  <li><strong>AC2 (accountability):</strong> Saving an override without a reason, or with a reason shorter than 10 characters, is rejected (422) and creates no new history row.</li>
+  <li><strong>AC3 (audit trail):</strong> Each accepted override appends an immutable version record; a subsequent override retains prior versions and returns an accurate <code>history_count</code>.</li>
+  <li><strong>AC4 (no data loss):</strong> Regeneration keeps the previous report readable until a new result is committed.</li>
+  <li><strong>AC5 (idempotent/freshness):</strong> Duplicate enqueue attempts within the guard window do not create duplicate jobs; stale worker results do not overwrite a newer report; clients can distinguish <code>ready/pending/missing</code> and <code>stale</code>.</li>
+  <li><strong>Edge cases handled/tested:</strong> cross-tenant access, invalid/short reason, repeated overrides, stale job vs newer computed version, missing report vs pending generation, poll backoff (no POST storm), validation errors surfaced in UI.</li>
 </ul>
-<p>
-  Seeded fault evidence (red → green) and final screenshots are attached in <code>docs/screenshots/</code>;
-  final submission checklist lives in the pull request description.
-</p>
 
-<h2>8. User experience</h2>
-<p>
-  Loading, empty, pending, failed, and partial states; a dialog that refuses to submit an empty
-  rationale; provenance that stays legible at narrow widths; and a report page that no longer
-  implies certainty it does not have. Polling uses backoff and does not re-trigger generation on
-  retries; the API never deletes a report before the new result is committed.
-</p>
+<h2>8. Verification: tests, seeded fault, and AI verification notes</h2>
+<h3>Test coverage evidence</h3>
+<pre><code># API (18 examples, 0 failures, CI=true eager load)
+docker compose exec -e CI=true -e RAILS_ENV=test api bundle exec rspec --format documentation
 
-<h2>9. Trade-offs &amp; next steps</h2>
-<p>
-  What was deliberately not done in this slice, what it would cost, and what I would do first with
-  more time — including signature verification on the tenant resolver, a dedicated history endpoint,
-  and frontend unit tests. The signature-verification defect was closed during the tenant hardening
-  slice; remaining optional work is the dedicated override-history endpoint and web unit tests.
-</p>
+# Web
+cd web && npm ci && npm run build</code></pre>
+<p>Key specs: <code>spec/requests/tenant_isolation_spec.rb</code>, <code>spec/requests/override_audit_spec.rb</code>, <code>spec/requests/fitgap_spec.rb</code> (+ harness/health/auth specs). GitHub Actions CI runs the same classes of checks (API services + web build) and is green on the branch.</p>
 
-<h2>10. Reproduction</h2>
-<p>
-  Commands, environment, seeded data, and accounts needed to run the app and reproduce every claim
-  in this report.
-</p>
-<pre><code># dev stack
-docker compose up -d
+<h3>Seeded fault test</h3>
+<p>On a temporary <code>evidence/seeded-fault</code> branch (not merged), I intentionally bypass tenant scoping for portfolio lookups, ran <code>tenant_isolation_spec.rb</code> to observe a <strong>red</strong> failure, reverted the fault, and reran to confirm <strong>green</strong>. This demonstrates the regression test catches the targeted security failure.</p>
+<div class="placeholder">[ADD seeded-fault screenshots: terminal red → green, and <code>git log</code> on evidence branch if captured]</div>
 
-# tests
-docker compose exec -e CI=true -e RAILS_ENV=test api bundle exec rspec --format progress
+<h3>AI verification notes (when AI output was wrong/risky and how I verified)</h3>
+<ul>
+  <li><strong>Risky setup suggestion:</strong> an AI-suggested local run pattern using <code>/tmp</code>/ad-hoc container commands and a fragile <code>--rm --no-deps</code> approach. <em>Verification/correction:</em> validated the app only after moving to a reproducible <code>docker-compose.yml</code> in the repo, confirming <code>/api/v1/health</code> and real login/authenticated requests worked end-to-end.</li>
+  <li><strong>Incorrect test-host handling:</strong> an initial attempt used <code>config.hosts.clear</code> in the test environment and produced blocked/403 behavior under request specs. <em>Verification/correction:</em> inspected the HTML/error response, adjusted to the Rails 7-compatible test configuration (<code>config.hosts = nil</code>) with clear intent, and re-ran specs/CI-mode eager loading.</li>
+  <li><strong>CI/runtime mismatch assumptions:</strong> version/runner issues (and a Zeitwerk constant naming issue surfaced by eager loading) were not assumed away. <em>Verification/correction:</em> pinned the Ruby runner to match the repo, fixed eager-load naming, and required <code>CI=true</code> local runs before pushing.</li>
+</ul>
+<div class="callout"><strong>Principle:</strong> AI-assisted code and suggestions were treated as untrusted drafts — verified against running behavior, logs/responses, specs, and CI.</div>
 
-# demo data (two tenants)
-docker compose exec api bundle exec rails runner db/demo.rb
+<h2>9. Visual evidence (screenshots)</h2>
+<p>Screenshots from <code>docs/screenshots/</code> and placeholders for remaining required evidence. (Responsive/long-text states: if not captured separately, note during walkthrough or add before final submission.)</p>
+<div class="grid2">
+  <figure><img src="screenshots/same-tenant.png" alt="Same tenant access"><figcaption>Same-tenant portfolio/fit-gap access (authorized).</figcaption></figure>
+  <figure><img src="screenshots/different-tenant.png" alt="Cross-tenant denied"><figcaption>Cross-tenant access denied (404) — tenant isolation.</figcaption></figure>
+</div>
+<div class="grid2">
+  <figure><img src="screenshots/input-override-wrong.png" alt="Override validation"><figcaption>Override dialog validation / edge case (reason too short or missing).</figcaption></figure>
+  <figure><img src="screenshots/input-override-valid.png" alt="Override saved"><figcaption>Valid override saved; provenance/state updated.</figcaption></figure>
+</div>
+<div class="grid2">
+  <figure><img src="screenshots/ci-check.png" alt="CI check"><figcaption>CI check status (green).</figcaption></figure>
+  <figure><img src="screenshots/action-github.png" alt="GitHub Actions"><figcaption>GitHub Actions run evidence.</figcaption></figure>
+</div>
+<div class="placeholder">[ADD seeded-fault red/green screenshots] [ADD responsive view / long-text or error-state screenshot if required] [ADD UI flow overview screenshot if desired]</div>
 
-# cross-tenant check (Tenant A portfolio 44, Tenant B token -> expect 404)
-TOKEN_B=... # from demo output
-curl -s -o /dev/null -w '%{http_code}' -H "Authorization: Bearer $TOKEN_B" \
-  http://localhost:3001/api/v1/portfolios/44/fitgap/38
-</code>
+<h2>10. Trade-offs, rigor, and Monozukuri notes</h2>
+<ul>
+  <li><strong>Scope trade-off:</strong> prioritized P0/P1 decision integrity (isolation, accountability, reliable regeneration) over broader product features; the portfolio-page inline override UI remains less strict than the new fit/gap dialog (noted for follow-up).</li>
+  <li><strong>Rigor/failure handling:</strong> no destructive delete-before-success on regeneration, version-aware stale handling, idempotent enqueue guard, explicit API/UI states (ready/pending/missing/stale/failed/validation), and verified JWT handling for tenant context.</li>
+  <li><strong>Data safety:</strong> reversible migrations/backfill approach, validated inputs (override reason/level constraints), no secrets or real candidate data committed; fixture demo data only.</li>
+  <li><strong>Not done (costed):</strong> dedicated override history endpoint, web unit tests (Vitest/RTL), and further visual/responsive polish across all pages — chosen to protect verified correctness and delivery of mandatory evidence within time.</li>
+</ul>
+
+<h2>11. Reproduction (high level)</h2>
+<pre><code>docker compose up -d
+docker compose exec -e CI=true -e RAILS_ENV=test api bundle exec rspec --format documentation
+cd web && npm ci && npm run build
+docker compose exec api bundle exec rails runner db/demo.rb</code></pre>
+<p>Use the IDs/tokens printed by <code>db/demo.rb</code> for same-tenant (200) vs cross-tenant (404) fit/gap checks and UI walkthrough.</p>
 
 <div class="footer">
-  Assessor Decision Integrity · Case Study: Fullstack Product Engineer · Muhammad Nazih
+  Muhammad Nazih · Case Study Maganghub — Fullstack Product Engineer (Batch 3 2026) · <a href="https://github.com/muhnazih029/ai-interview-platform/pull/1">PR #1</a> · Video: [ADD LINK]
 </div>
 
 </body>
