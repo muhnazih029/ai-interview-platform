@@ -35,5 +35,19 @@ RSpec.describe 'Assessments', type: :request do
         expect(response).to have_http_status(:forbidden)
       end
     end
+
+    context 'with a token signed by a different secret' do
+      it 'does not trust the scheme claim' do
+        forged = JWT.encode(
+          { user_id: user.id, role: user.role, scheme: organization.scheme },
+          'wrong-secret',
+          'HS256'
+        )
+
+        get '/api/v1/assessments', headers: auth_headers(forged)
+
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
   end
 end
