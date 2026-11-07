@@ -27,7 +27,11 @@ api.interceptors.response.use(
     return response;
   },
   (error) => {
-    if (error.response?.status === 401 || error.response?.status === 403) {
+    const status = error.response?.status;
+    const url = error.config?.url || "";
+    const isAuthAttempt = url.includes("/auth/login") || url.includes("/auth/signup");
+
+    if ((status === 401 || status === 403) && !isAuthAttempt) {
       clearToken();
       window.location.href = "/login";
     }
