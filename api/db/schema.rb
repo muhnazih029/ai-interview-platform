@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_11_07_000001) do
+ActiveRecord::Schema[7.0].define(version: 2026_11_07_000002) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -54,6 +54,21 @@ ActiveRecord::Schema[7.0].define(version: 2026_11_07_000001) do
     t.string "language", default: "en"
     t.index ["tenant_id"], name: "index_assessments_on_tenant_id"
     t.check_constraint "time_limit_min = ANY (ARRAY[10, 30, 45, 60, 90])", name: "chk_assessments_time_limit"
+  end
+
+  create_table "assessor_override_versions", force: :cascade do |t|
+    t.bigint "portfolio_skill_id", null: false
+    t.bigint "tenant_id", null: false
+    t.integer "version", null: false
+    t.integer "ai_level", null: false
+    t.integer "override_level", null: false
+    t.text "reason", null: false
+    t.bigint "actor_id", null: false
+    t.string "actor_role", null: false
+    t.datetime "created_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
+    t.index ["portfolio_skill_id", "version"], name: "idx_override_versions_on_skill_and_version", unique: true
+    t.index ["portfolio_skill_id"], name: "index_assessor_override_versions_on_portfolio_skill_id"
+    t.index ["tenant_id"], name: "index_assessor_override_versions_on_tenant_id"
   end
 
   create_table "assessor_overrides", force: :cascade do |t|
@@ -127,6 +142,7 @@ ActiveRecord::Schema[7.0].define(version: 2026_11_07_000001) do
     t.datetime "generated_at"
     t.text "generation_error"
     t.bigint "tenant_id", null: false
+    t.integer "overrides_version", default: 0, null: false
     t.index ["candidate_id"], name: "index_portfolios_on_candidate_id"
     t.index ["session_id"], name: "index_portfolios_on_session_id", unique: true
     t.index ["tenant_id"], name: "index_portfolios_on_tenant_id"
@@ -208,6 +224,7 @@ ActiveRecord::Schema[7.0].define(version: 2026_11_07_000001) do
   end
 
   add_foreign_key "assessment_skills", "assessments"
+  add_foreign_key "assessor_override_versions", "portfolio_skills"
   add_foreign_key "assessor_overrides", "portfolio_skills"
   add_foreign_key "coverage_maps", "sessions"
   add_foreign_key "fit_gap_reports", "portfolios"

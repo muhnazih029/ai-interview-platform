@@ -9,31 +9,21 @@ module Api
 
       # POST /api/v1/portfolio-skills/:id/override
       def override
-        existing = @portfolio_skill.assessor_override
+        result = AssessorOverrides::Record.new(
+          skill: @portfolio_skill,
+          override_level: override_params[:override_level],
+          reason: override_params[:assessor_notes],
+          actor: current_user
+        ).call
 
-        if existing
-          if existing.update(override_params.merge(overridden_by: current_user.id, overridden_at: Time.current))
-            regenerate_stale_fitgap_reports
-            json_response(override: override_json(existing))
-          else
-            json_error(existing.errors.full_messages.first, :unprocessable_entity)
-          end
-        else
-          new_override = @portfolio_skill.build_assessor_override(
-            override_params.merge(
-              ai_level:      @portfolio_skill.ai_level,
-              overridden_by: current_user.id,
-              overridden_at: Time.current
-            )
-          )
+        regenerate_stale_fitgap_reports
 
-          if new_override.save
-            regenerate_stale_fitgap_reports
-            json_response({ override: override_json(new_override) }, :created)
-          else
-            json_error(new_override.errors.full_messages.first, :unprocessable_entity)
-          end
-        end
+        json_response(
+          { override: override_json(result.override), history_count: result.history_count },
+          result.created ? :created : :ok
+        )
+      rescue AssessorOverrides::Record::InvalidReason, ActiveRecord::RecordInvalid => e
+        json_error(e.message, :unprocessable_entity)
       end
 
       private
